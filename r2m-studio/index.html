@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/r2m-studio/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="R2M Studio Web — Record melodies from MIDI, edit in a piano roll, and get AI-powered chord suggestions." />
+    <title>R2M Studio Web</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/r2m-studio/assets/index-tn8AOKiv.js"></script>
+    <link rel="stylesheet" crossorigin href="/r2m-studio/assets/index-CLpJAatU.css">
+  </head>
+  <body>
+    <div id="app">
+
+      <!-- ====== HEADER ====== -->
+      <header>
+        <div class="header-left">
+          <!-- Porte d'Mon Home Link -->
+          <button id="porte-dmon-home-link" class="porte-dmon-home-link" title="ホームに戻る" type="button">
+            <img src="/r2m-studio/porte-dmon-square-logo.svg" id="porte-dmon-logo" alt="Porte d'Mon" class="porte-dmon-logo" style="width:28px;height:28px;" />
+            <span id="porte-dmon-text" class="porte-dmon-text">←</span>
+          </button>
+          <!-- Compact Language Switcher (next to back button) -->
+          <div id="lang-switcher-container" class="lang-switcher-container"></div>
+          <div class="logo">
+            <span class="accent">R2M</span> STUDIO <span class="badge">WEB</span>
+          </div>
+        </div>
+
+        <div class="header-center">
+          <!-- Transport -->
+          <div class="transport">
+            <button id="btn-rec" class="btn btn-rec" title="Record (R)">⏺ Rec</button>
+            <button id="btn-stop" class="btn" disabled title="Stop (Esc)">⏹ Stop</button>
+            <button id="btn-play" class="btn" title="Play/Pause (Space)">▶ Play</button>
+          </div>
+
+          <!-- Settings -->
+          <div class="settings-group">
+            <label class="setting-item">
+              <span class="setting-label">BPM</span>
+              <input id="input-bpm" type="number" min="30" max="300" value="120" class="input-sm" />
+            </label>
+            <label class="setting-item">
+              <span class="setting-label">T.Sig</span>
+              <select id="select-ts" class="select-sm">
+                <option value="4/4" selected>4/4</option>
+                <option value="3/4">3/4</option>
+                <option value="6/8">6/8</option>
+                <option value="2/4">2/4</option>
+                <option value="5/4">5/4</option>
+              </select>
+            </label>
+            <label class="setting-item">
+              <span class="setting-label">Grid</span>
+              <select id="select-grid" class="select-sm">
+                <option value="1/1">1/1</option>
+                <option value="1/2">1/2</option>
+                <option value="1/4" selected>1/4</option>
+                <option value="1/8">1/8</option>
+                <option value="1/16">1/16</option>
+                <option value="1/32">1/32</option>
+                <option value="1/8T">1/8T</option>
+              </select>
+            </label>
+          </div>
+
+          <!-- Transpose -->
+          <div class="transpose-group">
+            <span class="setting-label">Transpose</span>
+            <div class="transpose-btns">
+              <button id="btn-transpose-down" class="btn btn-xs" title="Transpose -1 semitone">−</button>
+              <button id="btn-transpose-up" class="btn btn-xs" title="Transpose +1 semitone">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Project -->
+          <div class="project-group">
+            <button id="btn-new"  class="btn btn-sm" title="New project">New</button>
+            <button id="btn-save" class="btn btn-sm" title="Save (Ctrl+S)">Save</button>
+            <button id="btn-load" class="btn btn-sm" title="Load">Load</button>
+            <button id="btn-export" class="btn btn-primary btn-sm" disabled title="Export MIDI">Export</button>
+          </div>
+          <!-- MIDI Status -->
+          <div class="midi-status" id="midi-status">
+            <span class="indicator"></span>
+            <span class="label">No Device</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- ====== MAIN EDITOR ====== -->
+      <main>
+        <!-- Left tool sidebar -->
+        <aside class="tool-sidebar">
+          <button id="tool-select" class="tool-btn active" title="Select (1)">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M7 2l10 10-4 1 3 7-2 1-3-7-4 4z"/></svg>
+          </button>
+          <button id="tool-draw" class="tool-btn" title="Draw (2)">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+          </button>
+          <button id="tool-erase" class="tool-btn" title="Erase (3)">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+          </button>
+          <div class="tool-divider"></div>
+          <button id="toggle-snap" class="tool-btn active" title="Snap to grid (G)">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20 5V3H4v2h6v14H8v2h8v-2h-2V5z"/></svg>
+          </button>
+        </aside>
+
+        <!-- Piano roll area -->
+        <div class="editor-area">
+          <div class="piano-roll-row">
+            <div class="keyboard-wrapper" id="keyboard-wrapper">
+              <canvas id="keyboard-canvas"></canvas>
+            </div>
+            <div class="grid-wrapper" id="grid-wrapper">
+              <canvas id="grid-canvas"></canvas>
+            </div>
+          </div>
+          <!-- Chord track -->
+          <div class="chord-track-row">
+            <div class="chord-label-cell">
+              <div class="chord-label-bar">
+                <span class="chord-label-text">CHORDS</span>
+              </div>
+            </div>
+            <div class="chord-wrapper" id="chord-wrapper">
+              <canvas id="chord-canvas"></canvas>
+            </div>
+          </div>
+          <!-- Chord analysis bar -->
+          <div class="chord-controls">
+            <button id="btn-analyze" class="btn btn-sm btn-accent" title="Analyze melody & suggest chords">🎵 Analyze</button>
+            <label class="setting-item">
+              <span class="setting-label">Key</span>
+              <select id="select-key" class="select-sm select-key">
+                <option value="0-major">C Maj</option><option value="0-minor">C Min</option>
+                <option value="1-major">C# Maj</option><option value="1-minor">C# Min</option>
+                <option value="2-major">D Maj</option><option value="2-minor">D Min</option>
+                <option value="3-major">D# Maj</option><option value="3-minor">D# Min</option>
+                <option value="4-major">E Maj</option><option value="4-minor">E Min</option>
+                <option value="5-major">F Maj</option><option value="5-minor">F Min</option>
+                <option value="6-major">F# Maj</option><option value="6-minor">F# Min</option>
+                <option value="7-major">G Maj</option><option value="7-minor">G Min</option>
+                <option value="8-major">G# Maj</option><option value="8-minor">G# Min</option>
+                <option value="9-major">A Maj</option><option value="9-minor">A Min</option>
+                <option value="10-major">A# Maj</option><option value="10-minor">A# Min</option>
+                <option value="11-major">B Maj</option><option value="11-minor">B Min</option>
+              </select>
+            </label>
+            <label class="setting-item">
+              <span class="setting-label">Style</span>
+              <select id="select-chord-mode" class="select-sm">
+                <option value="simple">Simple</option>
+                <option value="standard" selected>Standard</option>
+                <option value="complex">Complex</option>
+                <option value="jazzy">Jazzy</option>
+              </select>
+            </label>
+            <label class="setting-item">
+              <span class="setting-label">Res.</span>
+              <select id="select-chord-res" class="select-sm">
+                <option value="beat">Beat</option>
+                <option value="half" selected>Half-bar</option>
+                <option value="bar">Bar</option>
+              </select>
+            </label>
+            <span id="key-info" class="key-info-badge">C Maj</span>
+          </div>
+        </div>
+      </main>
+
+      <!-- ====== FOOTER ====== -->
+      <footer>
+        <div class="status-bar">
+          <span class="status-item" id="pos-info">1:1</span>
+          <span class="status-item" id="note-info">-</span>
+          <span class="status-item mode-badge" id="mode-info">READY</span>
+          <span class="status-item credit">R2M Studio Web v2.0</span>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,33 @@
+<svg viewBox="0 0 260 80" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .logo-frame { stroke: #1a1a1a; }
+    .logo-divider { stroke: #1a1a1a; }
+    .logo-m { stroke: #00D9FF; }
+    .logo-text { fill: #1a1a1a; }
+    
+    @media (prefers-color-scheme: dark) {
+      .logo-frame { stroke: #f5f5f5; }
+      .logo-divider { stroke: #f5f5f5; }
+      .logo-text { fill: #f5f5f5; }
+    }
+  </style>
+  <g transform="translate(10, 40)">
+    <!-- Simple gate icon -->
+    <g transform="translate(0, 0)">
+      <rect x="-20" y="-25" width="40" height="50" fill="none" stroke-width="2" rx="2" class="logo-frame"/>
+      <line x1="0" y1="-25" x2="0" y2="25" stroke-width="1.5" class="logo-divider"/>
+      <!-- M inside gate -->
+      <path d="M -10,-10 L -10,10 M -10,-10 L 0,0 M 0,0 L 10,-10 L 10,10" 
+            stroke-width="2.5" 
+            stroke-linecap="round" 
+            stroke-linejoin="round" 
+            fill="none"
+            class="logo-m"/>
+    </g>
+    
+    <!-- Porte d'Mon text -->
+    <text x="35" y="6" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="500" letter-spacing="-0.5" class="logo-text">
+      Porte d'Mon
+    </text>
+  </g>
+</svg>
